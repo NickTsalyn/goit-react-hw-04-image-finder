@@ -1,5 +1,5 @@
 // import { Container } from "react-bootstrap";
-import { Component } from 'react';
+import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -7,21 +7,17 @@ import Stack from 'react-bootstrap/Stack';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-export class SearchBar extends Component {
-  state = {
-    query: '',
-    page: 1,
+ export const SearchBar = ({onSubmit}) =>  {
+
+
+  const [query, setQuery] = useState("")
+
+  const handleSearchQueryChange = e => {
+   setQuery(e.currentTarget.value.toLowerCase())
   };
 
-  handleSearchQueryChange = e => {
-    this.setState({ query: e.currentTarget.value.toLowerCase() });
-  };
-
-  handleSubmit = e => {
+  const handleSubmit = e => {
     e.preventDefault();
-
-    const { query } = this.state;
-    const { onSubmit } = this.props;
 
     if (query.trim() === '') {
       toast.error('Please enter a search value');
@@ -31,9 +27,7 @@ export class SearchBar extends Component {
     onSubmit(query);
   };
 
-  render() {
-    const { handleSubmit, handleSearchQueryChange } = this;
-    const { query } = this.state;
+
 
     return (
       <Stack direction="horizontal" className="justify-content-center mt-5">
@@ -55,4 +49,3 @@ export class SearchBar extends Component {
       </Stack>
     );
   }
-}

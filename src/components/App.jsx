@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { Component, useEffect, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import { SearchBar } from './SearchBar/SearchBar';
 import { ImageGallery } from './ImageGallery/ImageGallery';
@@ -7,74 +7,66 @@ import { Container } from 'react-bootstrap';
 import { Loader } from './Loader/Loader';
 import { ButtonLoadMore } from './Button/Button';
 
-export class App extends Component {
-  state = {
-    query: '',
-    page: 1,
-    images: [],
-    totalHits: 0,
-    loading: false,
-    error: false,
-  };
+export const App = () => {
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [images, setImages] = useState([]);
+  const [totalHits, setTotalHits] = useState(0);
+  const [loading, setLoading] = useState(false);
 
-  async componentDidUpdate(_, prevState) {
-    const { query, page } = this.state;
+  useEffect(() => {
+    if (!query) {
+      return;
+    }
 
-    if (prevState.query !== query || prevState.page !== page) {
+    async function getContent() {
       try {
-        this.setState({ loading: true });
-
         const { totalHits, hits } = await getImages(query, page);
-        
 
         if (totalHits === 0) {
           toast.error('Nothing was found for your request');
-          this.setState({ loading: false });
+          setLoading(false);
           return;
         }
+        setImages(prevImages => (page === 1 ? hits : [...prevImages, ...hits]));
+        setTotalHits(prevTotalHits =>
+          page === 1 ? totalHits - hits.length : prevTotalHits - hits.length
+        );
 
-        this.setState(prevState => ({
-          images: page === 1 ? hits : [...prevState.images, ...hits],
-
-          totalHits:
-            page === 1
-              ? totalHits - hits.length
-              : totalHits - [...prevState.images, ...hits].length,
-        }));
-        toast.success(`Success, found ${totalHits} images`);
-
-        this.setState({ loading: false });
+        // if(totalHits === 0) {
+        //   toast.error("No more requests")
+        // }
+        
+        if(page === 1) {
+          toast.success(`Success, found ${totalHits} images`);
+        }
+        setLoading(false);
+        
       } catch (error) {
         toast.error(`Oops! Something went wrong! ${error}`);
       }
     }
-  }
+    getContent();
+  }, [query, page]);
 
-  handleLoadMore = () => {   
-      this.setState(prevState => ({
-        page: prevState.page + 1
-      }));
-    }
-
-
-  handleQuerySubmit = query => {
-    this.setState({ query, page: 1 });
+  const handleLoadMore = () => {
+    setPage(page => page + 1);
   };
 
-  render() {
-    const { images, totalHits, loading } = this.state;
-    const { handleQuerySubmit, handleLoadMore } = this;
-  
-    return (
-      <Container className="d-flex justify-content-center flex-column">
-        <SearchBar onSubmit={handleQuerySubmit} />
+  const handleQuerySubmit = query => {
+    setQuery(query);
+    setPage(1);
+  };
 
-        {loading && <Loader/>}
-        {images && <ImageGallery images={images} />}
-        {!!totalHits && <ButtonLoadMore onLoadMore={handleLoadMore}/>}
+  return (
+    <Container className="d-flex justify-content-center flex-column">
+      <SearchBar onSubmit={handleQuerySubmit} />
 
-        <Toaster position="top-right" reverseOrder={false} />
-      </Container>
-    );
-  }
-}
+      {loading && <Loader />}
+      {images && <ImageGallery images={images} />}
+      {!!totalHits && <ButtonLoadMore onLoadMore={handleLoadMore} />}
+
+      <Toaster position="top-right" reverseOrder={false} />
+    </Container>
+  );
+};
