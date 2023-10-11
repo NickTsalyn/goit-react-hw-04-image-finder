@@ -18,7 +18,7 @@ export const App = () => {
     if (!query) {
       return;
     }
-
+    setLoading(true)
     async function getContent() {
       try {
         const { totalHits, hits } = await getImages(query, page);
@@ -29,8 +29,9 @@ export const App = () => {
           return;
         }
         setImages(prevImages => (page === 1 ? hits : [...prevImages, ...hits]));
-        setTotalHits(prevTotalHits =>
-          page === 1 ? totalHits - hits.length : prevTotalHits - hits.length
+        setTotalHits(prevTotalHits => { 
+
+          return page === 1 ? totalHits - hits.length : prevTotalHits - hits.length}
         );
 
         // if(totalHits === 0) {
