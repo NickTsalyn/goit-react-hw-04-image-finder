@@ -1,4 +1,4 @@
-import { Component, useEffect, useState } from 'react';
+import {useEffect, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import { SearchBar } from './SearchBar/SearchBar';
 import { ImageGallery } from './ImageGallery/ImageGallery';
