@@ -30,8 +30,14 @@ export const App = () => {
         }
         setImages(prevImages => (page === 1 ? hits : [...prevImages, ...hits]));
         setTotalHits(prevTotalHits => { 
+         const result =  page === 1 ? totalHits - hits.length : prevTotalHits - hits.length
+         if(result === 0) {
+          toast.error("No more requests")
+         }
+         return result
+        }
+         
 
-          return page === 1 ? totalHits - hits.length : prevTotalHits - hits.length}
         );
 
         // if(totalHits === 0) {
